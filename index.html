@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spoken Nursing Care Plan: Clinical Pronunciation & Word Game Matrix</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    @keyframes bamShake {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      15% { transform: translate(-12px, -12px) rotate(-3deg); }
+      30% { transform: translate(12px, 12px) rotate(3deg); }
+      45% { transform: translate(-10px, 10px) rotate(-2deg); }
+      60% { transform: translate(10px, -10px) rotate(2deg); }
+      75% { transform: translate(-5px, 0px) rotate(-1deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+    .bam-effect {
+      animation: bamShake 0.45s ease-in-out;
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #09121d 0%, #111e2e 50%, #082032 100%);
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.7); }
+      50% { box-shadow: 0 0 0 15px rgba(20, 184, 166, 0); }
+    }
+    .recording-pulse {
+      animation: pulseGlow 1.5s infinite;
+    }
+  </style>
+</head>
+<body class="gradient-bg text-slate-100 min-h-screen flex flex-col font-sans">
+
+  <!-- TOP HEADER -->
+  <header class="bg-slate-900/90 backdrop-blur border-b border-slate-700/60 sticky top-0 z-40 px-4 py-3 shadow-lg">
+    <div class="max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-3">
+      <div>
+        <h1 class="text-xl md:text-2xl font-extrabold text-amber-400 tracking-wide flex items-center gap-2">
+          🎙️ Clinical Pronunciation & Word Game Matrix
+        </h1>
+        <p class="text-xs text-slate-400">Curriculum & Framework: <span class="text-teal-300 font-semibold">Giyono Asfarrasyid</span></p>
+      </div>
+
+      <!-- SCOREBOARD & STATS -->
+      <div class="flex items-center gap-4 bg-slate-800/90 px-4 py-2 rounded-xl border border-slate-700">
+        <div class="text-center">
+          <span class="text-xs text-slate-400 block uppercase font-bold tracking-wider">Score</span>
+          <span id="scoreDisplay" class="text-2xl font-black text-amber-400">0</span>
+        </div>
+        <div class="h-8 w-px bg-slate-700"></div>
+        <div class="text-center">
+          <span class="text-xs text-slate-400 block uppercase font-bold tracking-wider">Streak</span>
+          <span id="streakDisplay" class="text-2xl font-black text-emerald-400">0🔥</span>
+        </div>
+        <div class="h-8 w-px bg-slate-700"></div>
+        <div class="text-center">
+          <span class="text-xs text-slate-400 block uppercase font-bold tracking-wider">Module</span>
+          <span id="caseProgressDisplay" class="text-sm font-bold text-sky-300">1 / 20</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main id="mainContainer" class="flex-grow max-w-5xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+
+    <!-- CONTROLS & MODULE SELECTION -->
+    <section class="bg-slate-800/60 rounded-2xl p-4 border border-slate-700/80 flex flex-wrap justify-between items-center gap-3">
+      <div class="flex items-center gap-2">
+        <label for="moduleSelect" class="text-sm font-semibold text-slate-300">Jump to Clinical Module:</label>
+        <select id="moduleSelect" class="bg-slate-900 border border-slate-600 text-amber-300 text-sm rounded-lg p-2 focus:ring-2 focus:ring-amber-400 outline-none">
+          <option value="all">All 20 Modules (Pronunciation & Word Game)</option>
+          <option value="1">Modules 1-5: Assessment, Vitals, ISBAR, Meds</option>
+          <option value="6">Modules 6-10: Treatments, Handover, HR, Peds, ICU</option>
+          <option value="11">Modules 11-15: Isolation, Discharge, Surgery, Psych, Onco</option>
+          <option value="16">Modules 16-20: ER, Community, Home, Geri, Palliative</option>
+        </select>
+      </div>
+
+      <div class="flex gap-2">
+        <button id="resetBtn" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-3 py-2 rounded-lg transition font-medium">
+          🔄 Reset Game
+        </button>
+        <button id="soundToggle" class="bg-amber-700 hover:bg-amber-600 text-white text-xs px-3 py-2 rounded-lg transition font-medium">
+          🔊 Audio FX: ON
+        </button>
+      </div>
+    </section>
+
+    <!-- SCENARIO CARD & PRONUNCIATION MATRIX -->
+    <section class="bg-slate-800/90 rounded-2xl p-6 border border-slate-700 shadow-xl relative overflow-hidden space-y-6">
+      
+      <!-- TOP BADGES -->
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 pb-3">
+        <span id="badgeCategory" class="bg-amber-900/80 text-amber-300 text-xs font-bold px-3 py-1 rounded-full uppercase border border-amber-500/40">
+          Module Phase
+        </span>
+        <div class="flex items-center gap-2">
+          <span class="bg-teal-900/80 text-teal-300 text-xs font-bold px-3 py-1 rounded-full border border-teal-500/40 uppercase">
+            Phonetic Pronunciation & Word Puzzle
+          </span>
+          <span class="text-xs text-slate-400">👩 Voice Model & Practice Ready</span>
+        </div>
+      </div>
+
+      <!-- VISUAL SETTING DESCRIPTION -->
+      <div id="visualDescription" class="italic text-xs text-slate-400 bg-slate-900/80 p-3 rounded-lg border-l-4 border-amber-500">
+        "Visual setting..."
+      </div>
+
+      <!-- MULTI-CHARACTER ROUNDTABLE EXCHANGE -->
+      <div class="bg-slate-950/90 p-5 rounded-2xl border border-slate-700 relative shadow-inner space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs uppercase font-extrabold text-amber-400 tracking-wider">💬 Roundtable Dialogue Exchange:</span>
+          <button id="speakDialogueBtn" class="bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 border border-amber-500/50 p-2 rounded-lg text-xs font-bold transition flex items-center gap-1 flex-shrink-0" title="Listen to Full Roundtable">
+            👨🔊 <span class="hidden md:inline">Listen Roundtable</span>
+          </button>
+        </div>
+
+        <!-- Speakers -->
+        <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 flex items-start gap-3">
+          <span class="text-xs font-bold bg-purple-900/80 text-purple-300 px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0" id="speaker1Title">Char 1</span>
+          <p id="speaker1Text" class="text-sm md:text-base font-semibold text-purple-200">"Dialogue line 1..."</p>
+        </div>
+        <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 flex items-start gap-3">
+          <span class="text-xs font-bold bg-teal-900/80 text-teal-300 px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0" id="speaker2Title">Char 2</span>
+          <p id="speaker2Text" class="text-sm md:text-base font-semibold text-teal-200">"Dialogue line 2..."</p>
+        </div>
+        <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 flex items-start gap-3">
+          <span class="text-xs font-bold bg-sky-900/80 text-sky-300 px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0" id="speaker3Title">Char 3</span>
+          <p id="speaker3Text" class="text-sm md:text-base font-semibold text-sky-200">"Dialogue line 3..."</p>
+        </div>
+        <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 flex items-start gap-3">
+          <span class="text-xs font-bold bg-amber-900/80 text-amber-300 px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0" id="speaker4Title">Char 4</span>
+          <p id="speaker4Text" class="text-sm md:text-base font-semibold text-amber-200">"Dialogue line 4..."</p>
+        </div>
+      </div>
+
+      <!-- TARGET PHRASE & PRONUNCIATION / WORD GAME CHALLENGE -->
+      <div class="bg-gradient-to-r from-teal-950/80 to-slate-900 border-2 border-teal-500/60 p-4 rounded-2xl flex flex-col gap-4 shadow-xl">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <span class="text-xs uppercase font-black text-teal-300 tracking-wider block">🎯 Target Clinical Pronunciation & Term:</span>
+            <div id="targetPronunciationPhrase" class="text-lg md:text-xl font-black text-amber-300">Retrosternal chest tightness</div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <button id="listenTargetBtn" class="bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs px-3 py-2.5 rounded-xl transition flex items-center gap-1 shadow-md">
+              🔊 Listen Model
+            </button>
+            <button id="recordMicBtn" class="bg-rose-600 hover:bg-rose-500 text-white font-black text-xs px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 shadow-lg">
+              🎤 Practice Mic
+            </button>
+            <button id="revealHintBtn" class="bg-slate-700 hover:bg-slate-600 text-amber-300 font-bold text-xs px-3 py-2.5 rounded-xl transition shadow-md">
+              💡 Phonetic Hint
+            </button>
+          </div>
+        </div>
+
+        <!-- Interactive Word Puzzle / Fill-in-the-blank challenge -->
+        <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-2">
+          <span class="text-xs text-sky-300 font-bold block">🧩 Word Puzzle Challenge: Unscramble / Complete the Missing Clinical Term</span>
+          <div id="wordPuzzleContainer" class="flex flex-wrap gap-2 items-center">
+            <!-- Word chips generated dynamically -->
+          </div>
+          <div id="puzzleFeedback" class="text-xs text-emerald-400 font-semibold"></div>
+        </div>
+      </div>
+
+      <!-- SPEECH STATUS BANNER -->
+      <div id="speechStatusBanner" class="hidden bg-slate-900 border border-slate-700 p-3 rounded-xl text-center text-xs font-bold text-sky-300">
+        🎙️ Listening... Speak the target phrase clearly into your mic!
+      </div>
+
+      <!-- CHALLENGE INSTRUCTION -->
+      <div class="bg-teal-950/40 border border-teal-700/50 p-3 rounded-xl flex items-center justify-between">
+        <p id="challengeInstruction" class="text-sm font-semibold text-teal-200">
+          ⚠️ Select ALL correct formal clinical nursing responses or documentation entries matching this roundtable exchange:
+        </p>
+        <button id="speakInstructionBtn" class="bg-teal-500/20 hover:bg-teal-500/40 text-teal-300 border border-teal-500/50 p-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center gap-1 flex-shrink-0">
+          👩🔊 Read
+        </button>
+      </div>
+
+      <!-- RANDOMIZED OPTIONS MATRIX -->
+      <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <!-- Options rendered dynamically -->
+      </div>
+
+      <!-- SUBMIT ACTION BUTTON -->
+      <div class="mt-6 flex justify-end">
+        <button id="submitBtn" class="w-full md:w-auto bg-gradient-to-r from-amber-500 to-emerald-500 hover:from-amber-400 hover:to-emerald-400 text-slate-950 font-black text-lg px-8 py-3.5 rounded-xl shadow-lg transition transform active:scale-95 disabled:opacity-50">
+          SUBMIT GAME EVALUATION (+100 / 0) 🎯
+        </button>
+      </div>
+
+      <!-- FEEDBACK OVERLAY BANNER -->
+      <div id="feedbackBanner" class="hidden p-4 rounded-xl border text-center font-bold text-lg transition duration-300">
+        <div id="feedbackText"></div>
+        <div id="feedbackSubtext" class="text-xs font-normal mt-1"></div>
+        <button id="nextScenarioBtn" class="mt-3 bg-slate-900 text-white text-sm px-6 py-2.5 rounded-lg border border-slate-600 hover:bg-slate-800 transition">
+          Next Clinical Scenario ➔
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-950 border-t border-slate-800 p-4 text-center text-xs text-slate-500">
+    <p>Spoken English for Nursing Care Plan Training System • Clinical Pronunciation & Word Game</p>
+    <p class="mt-1">Content & Pedagogical Framework © Giyono Asfarrasyid</p>
+  </footer>
+
+  <!-- ENGINE SCRIPT & AUDIO SYNTHESIZER -->
+  <script>
+    // --- DUAL VOICE TEXT-TO-SPEECH (TTS) CONTROLLER ---
+    class DualVoiceTTS {
+      constructor() {
+        this.synth = window.speechSynthesis;
+        this.voices = [];
+        this.initVoices();
+      }
+      initVoices() {
+        if (!this.synth) return;
+        const load = () => { this.voices = this.synth.getVoices(); };
+        load();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+          speechSynthesis.onvoiceschanged = load;
+        }
+      }
+      getVoice(gender) {
+        if (!this.voices || this.voices.length === 0) return null;
+        const en = this.voices.filter(v => v.lang.startsWith('en'));
+        if (gender === 'male') {
+          return en.find(v => v.name.includes('Male') || v.name.includes('David') || v.name.includes('George') || v.name.includes('James')) || en[0];
+        } else {
+          return en.find(v => v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Samantha') || v.name.includes('Hazel')) || en[1] || en[0];
+        }
+      }
+      speak(text, gender = 'female', rate = 0.88) {
+        if (!this.synth) return;
+        this.synth.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US';
+        u.rate = rate;
+        const voice = this.getVoice(gender);
+        if (voice) u.voice = voice;
+        u.pitch = (gender === 'male') ? 0.85 : 1.25;
+        this.synth.speak(u);
+      }
+    }
+
+    const tts = new DualVoiceTTS();
+
+    // --- WEB AUDIO API SOUND FX SYNTHESIZER ---
+    class SoundEffects {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+      }
+      playCorrect() {
+        if (!this.enabled) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + (idx * 0.08));
+          gain.gain.setValueAtTime(0.15, now + (idx * 0.08));
+          gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.08) + 0.3);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + (idx * 0.08));
+          osc.stop(now + (idx * 0.08) + 0.35);
+        });
+      }
+      playIncorrect() {
+        if (!this.enabled) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.exponentialRampToValueAtTime(60, now + 0.4);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.45);
+      }
+    }
+
+    const soundFX = new SoundEffects();
+
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // --- 20 INTERPROFESSIONAL PRONUNCIATION & WORD SCENARIOS ---
+    const pronunciationWordScenarios = [
+      {
+        id: 1,
+        moduleGroup: "1",
+        moduleTitle: "Module 1: Intake & Pain Assessment",
+        visual: "Admission desk. Roundtable involving Patient, Family Member, Resident Doctor, and Charge Nurse.",
+        s1: { speaker: "Patient", text: "Nurse, my chest feels like an elephant is sitting right on top of it, and the ache is shooting down my left arm!" },
+        s2: { speaker: "Family Member", text: "He has been sweating profusely for an hour—please check him right now!" },
+        s3: { speaker: "Resident Doctor", text: "Order an immediate 12-lead ECG and troponin stat." },
+        s4: { speaker: "Charge Nurse", text: "I will administer supplemental oxygen and prepare the cardiac monitor." },
+        targetPhrase: "Retrosternal chest tightness",
+        puzzleWords: ["Retrosternal", "chest", "tightness"],
+        phoneticHint: "re-tro-STUR-nul chest TITE-nes",
+        howTo: "Step 2 Mechanism: Evaluate pain intensity using PQRST criteria, administer oxygen, and initiate ECG monitoring.",
+        options: [
+          { text: "Patient reports crushing retrosternal chest tightness with radiation to left arm; ECG and troponin ordered.", isCorrect: true },
+          { text: "Initiating rapid cardiac assessment, supplemental oxygen, and stat 12-lead ECG as directed.", isCorrect: true },
+          { text: "Told patient it is routine muscle fatigue and advised light stretching exercises.", isCorrect: false, reason: "Dangerous clinical oversight trap." },
+          { text: "Discharged patient immediately without physician evaluation.", isCorrect: false, reason: "Unsafe patient abandonment trap." }
+        ]
+      },
+      {
+        id: 2,
+        moduleGroup: "1",
+        moduleTitle: "Module 2: Vital Signs & Decompensation",
+        visual: "Step-down unit. Roundtable with Head Nurse, Staff Nurse, Attending Physician, and Respiratory Therapist.",
+        s1: { speaker: "Head Nurse", text: "Bed 4's numbers just crashed—his heart is racing at 128 and his blood pressure dipped to 82 over 50!" },
+        s2: { speaker: "Staff Nurse", text: "I just verified the blood pressure manually; it is confirmed hypotensive." },
+        s3: { speaker: "Respiratory Therapist", text: "His oxygen saturation dropped to 88 percent on room air." },
+        s4: { speaker: "Attending Physician", text: "Start non-rebreather mask oxygen at 15 liters and prepare IV fluid bolus." },
+        targetPhrase: "Acute sinus tachycardia",
+        puzzleWords: ["Acute", "sinus", "tachycardia"],
+        phoneticHint: "uh-KYOOT SY-nus tak-ee-KAHR-dee-uh",
+        howTo: "Step 3 Harm Safety: Verify vitals manually, apply high-flow oxygen, and escalate fluid resuscitation.",
+        options: [
+          { text: "Initiate high-flow oxygen via non-rebreather mask (15L) and prepare rapid IV crystalloid fluid bolus.", isCorrect: true },
+          { text: "Document acute sinus tachycardia with severe hypotension and arterial hypoxia.", isCorrect: true },
+          { text: "Instruct patient to walk around the hospital corridor to improve circulation.", isCorrect: false, reason: "Unsafe clinical intervention trap." },
+          { text: "Ignore readings as a temporary machine malfunction.", isCorrect: false, reason: "Negligence hazard trap." }
+        ]
+      },
+      {
+        id: 3,
+        moduleGroup: "1",
+        moduleTitle: "Module 3: Nursing Care Plan Goals",
+        visual: "Nursing handover room. Roundtable with Outgoing Nurse, Incoming Nurse, Clinical Educator, and Unit Manager.",
+        s1: { speaker: "Outgoing Nurse", text: "Listen to his chest rattle! He can't clear out all that thick gunk from his lungs." },
+        s2: { speaker: "Incoming Nurse", text: "His cough is weak and ineffective at mobilizing secretions." },
+        s3: { speaker: "Clinical Educator", text: "What should we formulate as our primary NANDA nursing diagnosis?" },
+        s4: { speaker: "Unit Manager", text: "Document Ineffective Airway Clearance related to retained tracheobronchial secretions." },
+        targetPhrase: "Ineffective Airway Clearance",
+        puzzleWords: ["Ineffective", "Airway", "Clearance"],
+        phoneticHint: "in-uh-FEK-tiv AIR-way KLEER-uhns",
+        howTo: "Step 2 Mechanism: Formulate NANDA diagnosis: Ineffective Airway Clearance related to retained secretions.",
+        options: [
+          { text: "Nursing Diagnosis: Ineffective Airway Clearance related to retained bronchial secretions as evidenced by coarse rhonchi.", isCorrect: true },
+          { text: "SMART Goal: Patient will maintain SpO2 >= 94% and clear airway secretions within 4 hours.", isCorrect: true },
+          { text: "Diagnosis of acute surgical wound dehiscence requiring suture repair.", isCorrect: false, reason: "Wrong clinical system: Surgical wound trap." },
+          { text: "Plan: Restrict all oral fluids and administer strong laxatives.", isCorrect: false, reason: "Incorrect treatment plan trap." }
+        ]
+      },
+      {
+        id: 4,
+        moduleGroup: "1",
+        moduleTitle: "Module 4: ISBAR Physician Consult",
+        visual: "Central workstation. Roundtable with Nurse Sarah, Attending Doctor, Surgical Resident, and Pharmacist.",
+        s1: { speaker: "Attending Doctor", text: "Nurse Sarah, give me the situation on Mr. Roberts in Bed 7. Why are you calling me?" },
+        s2: { speaker: "Nurse Sarah", text: "Situation: Acute surgical bleeding. Background: Post-op Day 1. Assessment: BP 85/55, saturated dressing." },
+        s3: { speaker: "Surgical Resident", text: "Is he actively hemorrhaging from the incision site?" },
+        s4: { speaker: "Pharmacist", text: "Should we check his most recent hemoglobin and coagulation profile?" },
+        targetPhrase: "Acute surgical site bleeding",
+        puzzleWords: ["Acute", "surgical", "site", "bleeding"],
+        phoneticHint: "uh-KYOOT SUR-ji-kul site BLEED-ing",
+        howTo: "Step 2 Mechanism: Deliver structured ISBAR report highlighting active hemorrhage and vital drop.",
+        options: [
+          { text: "Situation: Acute surgical site bleeding with hypotension. Background: Post-op Day 1. Assessment: BP 85/55, HR 118, saturated dressing.", isCorrect: true },
+          { text: "Recommendation: Requesting immediate bedside evaluation and stat cross-match for 2 units PRBC.", isCorrect: true },
+          { text: "Told doctor patient was sleeping peacefully and needed no attention.", isCorrect: false, reason: "Contradictory clinical falsehood trap." },
+          { text: "Asked physician to review hospital cafeteria menu options.", isCorrect: false, reason: "Inappropriate non-clinical distractor." }
+        ]
+      },
+      {
+        id: 5,
+        moduleGroup: "1",
+        moduleTitle: "Module 5: Medication Safety & Pharmacist Alert",
+        visual: "Central pharmacy window. Roundtable with Clinical Pharmacist, Staff Nurse, Attending Prescriber, and Risk Manager.",
+        s1: { speaker: "Clinical Pharmacist", text: "Nurse, hold that new blood pressure prescription! It duplicates his home medication." },
+        s2: { speaker: "Staff Nurse", text: "Thank you for catching that! I will withhold the dose immediately." },
+        s3: { speaker: "Attending Prescriber", text: "Good catch by pharmacy. Let's cancel that duplicate order in the eMAR." },
+        s4: { speaker: "Risk Manager", text: "Ensure the intervention is fully charted for medication safety tracking." },
+        targetPhrase: "Duplicate medication warning",
+        puzzleWords: ["Duplicate", "medication", "warning"],
+        phoneticHint: "DOO-pli-kut med-i-KAY-shun WORN-ing",
+        howTo: "Step 3 Harm Safety: Cross-verify eMAR, hold duplicate medication, and contact prescriber.",
+        options: [
+          { text: "Acknowledge pharmacist warning, withhold medication dose, and clarify prescription order with attending physician.", isCorrect: true },
+          { text: "Document pharmacist intervention and medication order clarification in the patient's eMAR.", isCorrect: true },
+          { text: "Ignore pharmacist warning and force patient to ingest duplicate pills.", isCorrect: false, reason: "Medication overdose hazard trap." },
+          { text: "Discard all pharmacy stock into hospital waste.", isCorrect: false, reason: "Inappropriate pharmacy violation trap." }
+        ]
+      },
+      {
+        id: 6,
+        moduleGroup: "6",
+        moduleTitle: "Module 6: Treatments & Wound Care",
+        visual: "Treatment tray setup. Roundtable with Patient, Family Member, Staff Nurse, and Wound Care Specialist.",
+        s1: { speaker: "Family Member", text: "Is this cold wipe going to sting his fresh surgical cut when you clean it up?" },
+        s2: { speaker: "Patient", text: "I hope it doesn't hurt too much." },
+        s3: { speaker: "Staff Nurse", text: "It might cause a mild antiseptic sting, but I will use gentle aseptic technique." },
+        s4: { speaker: "Wound Care Specialist", text: "Ensure you cleanse from the inner wound margin outward to prevent contamination." },
+        targetPhrase: "Sterile aseptic technique",
+        puzzleWords: ["Sterile", "aseptic", "technique"],
+        phoneticHint: "STER-il ay-SEP-tik tek-NEEK",
+        howTo: "Step 2 Mechanism: Cleanse wound bed using aseptic technique and inform family of mild antiseptic stinging.",
+        options: [
+          { text: "Explain that antiseptic solution may cause mild transient stinging, and instruct patient to report sharp pain.", isCorrect: true },
+          { text: "Perform sterile dressing change using aseptic technique from inner wound margin outward.", isCorrect: true },
+          { text: "Tell family to apply unwashed tap water directly into open incision.", isCorrect: false, reason: "Infection contamination hazard trap." },
+          { text: "Skip hand hygiene and touch wound with unsterile bare hands.", isCorrect: false, reason: "Severe infection control breach trap." }
+        ]
+      },
+      {
+        id: 7,
+        moduleGroup: "6",
+        moduleTitle: "Module 7: Patient Observation & Evaluation",
+        visual: "Bedside evaluation. Roundtable with Patient, Family Member, Staff Nurse, and Attending Physician.",
+        s1: { speaker: "Patient", text: "My breathing feels a whole lot easier now with this extra oxygen, nurse!" },
+        s2: { speaker: "Family Member", text: "His color looks so much better than it did an hour ago." },
+        s3: { speaker: "Staff Nurse", text: "Let me auscultate your breath sounds to confirm improvement." },
+        s4: { speaker: "Attending Physician", text: "Great clinical response. Document the positive respiratory outcome." },
+        targetPhrase: "Clear lung fields bilaterally",
+        puzzleWords: ["Clear", "lung", "fields", "bilaterally"],
+        phoneticHint: "kleer lung feeldz by-LAT-ur-uh-lee",
+        howTo: "Step 4 Completion: Auscultate lung fields, verify SpO2 stabilization, and chart outcome in EHR.",
+        options: [
+          { text: "Auscultation confirms clearer lung fields bilaterally and SpO2 stabilized at 97% on ambient air.", isCorrect: true },
+          { text: "Documented successful achievement of care plan goal for respiratory status improvement.", isCorrect: true },
+          { text: "Charted acute respiratory failure and cardiac arrest.", isCorrect: false, reason: "Clinical contradiction trap." },
+          { text: "Ignored patient report and discontinued all oxygen therapy.", isCorrect: false, reason: "Unsafe patient abandonment trap." }
+        ]
+      },
+      {
+        id: 8,
+        moduleGroup: "6",
+        moduleTitle: "Module 8: HR & Administrative Communication",
+        visual: "Unit supervisor office. Roundtable with Staff Nurse, Nurse David, Head Nurse, and HR Coordinator.",
+        s1: { speaker: "Staff Nurse", text: "I was wondering if I could switch my Friday night shift with David next week for a family event?" },
+        s2: { speaker: "Nurse David", text: "Yes, I am happy to cover her shift on Friday night." },
+        s3: { speaker: "Head Nurse", text: "Have you both filled out the official shift swap application form?" },
+        s4: { speaker: "HR Coordinator", text: "Ensure minimum staffing ratios are maintained before final approval." },
+        targetPhrase: "Shift rotation swap request",
+        puzzleWords: ["Shift", "rotation", "swap", "request"],
+        phoneticHint: "shift roh-TAY-shun swop ri-KWEST",
+        howTo: "Step 4 Completion: Fill out shift swap application and submit to Head Nurse for final approval.",
+        options: [
+          { text: "Instruct nurse to submit formal shift rotation swap request countersigned by Nurse David prior to deadline.", isCorrect: true },
+          { text: "Verify shift exchange complies with minimum staffing ratio policies before manager sign-off.", isCorrect: true },
+          { text: "Tell nurse to abandon shift without notice on Friday night.", isCorrect: false, reason: "Job abandonment violation trap." },
+          { text: "Approve unauthorized double overtime without checking master schedule.", isCorrect: false, reason: "Administrative compliance breach trap." }
+        ]
+      },
+      {
+        id: 9,
+        moduleGroup: "6",
+        moduleTitle: "Module 9: Pediatric Fever Care",
+        visual: "Pediatric ward. Roundtable with Worried Mother, Pediatric Nurse, Pediatrician, and Pharmacist.",
+        s1: { speaker: "Worried Mother", text: "He has had a high fever since last night, around 39 degrees, and he won't take his bottle at all." },
+        s2: { speaker: "Pediatrician", text: "Assess him for signs of acute dehydration and pyrexia." },
+        s3: { speaker: "Pediatric Nurse", text: "Let's measure his exact weight so we can calculate a safe paracetamol dose." },
+        s4: { speaker: "Pharmacist", text: "Verify the weight-based dosage (15 mg/kg) carefully before dispensing." },
+        targetPhrase: "Pediatric pyrexia and dehydration",
+        puzzleWords: ["Pediatric", "pyrexia", "dehydration"],
+        phoneticHint: "pee-dee-AT-rik py-REK-see-uh dee-hy-DRAY-shun",
+        howTo: "Step 3 Harm Safety: Double-check weight-based paracetamol dosage to prevent overdose.",
+        options: [
+          { text: "Document acute pediatric pyrexia (39.0°C) secondary to poor oral intake and dehydration risk.", isCorrect: true },
+          { text: "Verify weight-based paracetamol dosage (15 mg/kg) with second nurse before administration.", isCorrect: true },
+          { text: "Administer adult-strength medication dosage to infant.", isCorrect: false, reason: "Lethal pediatric overdose hazard trap." },
+          { text: "Tell mother to ignore fever and give no fluids.", isCorrect: false, reason: "Severe pediatric neglect trap." }
+        ]
+      },
+      {
+        id: 10,
+        moduleGroup: "6",
+        moduleTitle: "Module 10: Critical Care & Code Calls",
+        visual: "ICU room. Roundtable with Primary Nurse, ICU Code Lead, Respiratory Therapist, and Pharmacy Tech.",
+        s1: { speaker: "Primary Nurse", text: "Call a Code Rapid Response for Room 210 right now! He's stopped breathing and has no pulse!" },
+        s2: { speaker: "ICU Code Lead", text: "Crash cart is here. Who is initiating chest compressions?" },
+        s3: { speaker: "Respiratory Therapist", text: "I am ready to manage the bag-valve-mask airway ventilation." },
+        s4: { speaker: "Pharmacy Tech", text: "Preparing emergency epinephrine and emergency crash medications." },
+        targetPhrase: "Cardiopulmonary arrest",
+        puzzleWords: ["Cardiopulmonary", "arrest"],
+        phoneticHint: "kar-dee-oh-PUL-muh-ner-ee uh-REST",
+        howTo: "Step 2 Mechanism: Initiate high-quality chest compressions and execute closed-loop communication.",
+        options: [
+          { text: "Initiate high-quality chest compressions at 100-120 bpm and bring crash cart and defibrillator.", isCorrect: true },
+          { text: "Execute closed-loop communication: assign team roles for airway, IV access, and medication push.", isCorrect: true },
+          { text: "Leave patient unattended to take a lunch break.", isCorrect: false, reason: "Fatal patient abandonment trap." },
+          { text: "Order patient a routine outpatient meal tray.", isCorrect: false, reason: "Inappropriate non-emergency response trap." }
+        ]
+      },
+      {
+        id: 11,
+        moduleGroup: "11",
+        moduleTitle: "Module 11: Infection Control & Isolation",
+        visual: "Isolation anteroom. Roundtable with Confused Visitor, Infection Control Nurse, Charge Nurse, and Epidemiologist.",
+        s1: { speaker: "Confused Visitor", text: "Do I really need to put on this yellow gown and N95 mask just to step inside his room?" },
+        s2: { speaker: "Infection Control Nurse", text: "Yes, airborne precautions protect you and other patients from infection dissemination." },
+        s3: { speaker: "Charge Nurse", text: "Please assist the visitor with proper PPE donning and seal checking." },
+        s4: { speaker: "Epidemiologist", text: "Compliance with isolation protocols is mandatory for ward safety." },
+        targetPhrase: "Airborne contact precautions",
+        puzzleWords: ["Airborne", "contact", "precautions"],
+        phoneticHint: "AIR-born KON-takt pri-KAW-shunz",
+        howTo: "Step 3 Harm Safety: Ensure N95 seal check and strict gown/gloves donning to prevent pathogen spread.",
+        options: [
+          { text: "Explain that airborne/contact precautions require hand hygiene and PPE donning prior to room entry.", isCorrect: true },
+          { text: "Assist visitor in proper donning of N95 respirator and fluid-resistant gown.", isCorrect: true },
+          { text: "Invite visitor to enter without mask and cough directly on patient.", isCorrect: false, reason: "Severe infection control breach trap." },
+          { text: "Tell visitor that contagious bacteria do not exist.", isCorrect: false, reason: "Medical misinformation hazard trap." }
+        ]
+      },
+      {
+        id: 12,
+        moduleGroup: "12",
+        moduleTitle: "Module 12: Discharge Planning",
+        visual: "Bedside discharge consultation. Roundtable with Patient, Family Member, Discharge Nurse, and Social Worker.",
+        s1: { speaker: "Patient", text: "When can I drive my car again, and what warning signs should make me call the clinic?" },
+        s2: { speaker: "Family Member", text: "We want to make sure we follow all home recovery rules." },
+        s3: { speaker: "Discharge Nurse", text: "Here is your printed folder detailing driving timelines and red-flag symptoms." },
+        s4: { speaker: "Social Worker", text: "Home health follow-up equipment has been scheduled for delivery." },
+        targetPhrase: "Red-flag symptoms",
+        puzzleWords: ["Red", "flag", "symptoms"],
+        phoneticHint: "red flag SIMP-tuhmz",
+        howTo: "Step 4 Completion: Review wound care, activity limits, and red-flag symptoms in discharge folder.",
+        options: [
+          { text: "Provide written discharge instructions detailing incisional wound care, activity restrictions, and driving timelines.", isCorrect: true },
+          { text: "Instruct patient on red-flag symptoms (fever, purulent drainage, severe pain) requiring immediate emergency return.", isCorrect: true },
+          { text: "Tell patient to remove all surgical stitches themselves with kitchen scissors.", isCorrect: false, reason: "Dangerous self-treatment hazard trap." },
+          { text: "Discharge patient without prescriptions or follow-up appointments.", isCorrect: false, reason: "Incomplete discharge violation trap." }
+        ]
+      },
+      {
+        id: 13,
+        moduleGroup: "13",
+        moduleTitle: "Module 13: Perioperative Care",
+        visual: "Pre-op holding bay. Roundtable with Anesthesiologist, Pre-op Nurse, Surgeon, and OR Circulator.",
+        s1: { speaker: "Anesthesiologist", text: "Nurse, has the patient maintained strict NPO status and is the correct operative limb marked?" },
+        s2: { speaker: "Pre-op Nurse", text: "Yes, NPO since midnight and the right knee site is initialed and verified." },
+        s3: { speaker: "Surgeon", text: "Let's perform our final timeout checklist before entering the OR." },
+        s4: { speaker: "OR Circulator", text: "Consent form is signed and verified by all team members." },
+        targetPhrase: "Strict NPO status",
+        puzzleWords: ["Strict", "NPO", "status"],
+        phoneticHint: "strikt en-pee-oh STAY-tus",
+        howTo: "Step 2 Mechanism: Verify identity, NPO fasting duration, and correct surgical site marking.",
+        options: [
+          { text: "Confirm strict NPO status since midnight, signed surgical consent, and verified right knee site mark.", isCorrect: true },
+          { text: "Complete pre-operative safety checklist and hand over patient to operating room team.", isCorrect: true },
+          { text: "Confirm patient ate a large heavy meal 30 minutes ago.", isCorrect: false, reason: "Aspiration hazard violation trap." },
+          { text: "State that no surgical site was marked.", isCorrect: false, reason: "Surgical safety protocol violation trap." }
+        ]
+      },
+      {
+        id: 14,
+        moduleGroup: "14",
+        moduleTitle: "Module 14: Mental Health Care",
+        visual: "Psychiatric consultation room. Roundtable with Patient, Psychiatric Nurse, Psychiatrist, and Social Worker.",
+        s1: { speaker: "Patient", text: "Nobody listens to me! Sometimes I just feel like people wouldn't miss me if I was gone." },
+        s2: { speaker: "Psychiatric Nurse", text: "I am listening to you, and your safety is my top priority right now." },
+        s3: { speaker: "Psychiatrist", text: "Assess active suicidal ideation and implement one-to-one observation." },
+        s4: { speaker: "Social Worker", text: "Ensure all sharp objects are removed from the room immediately." },
+        targetPhrase: "Suicidal ideation observation",
+        puzzleWords: ["Suicidal", "ideation", "observation"],
+        phoneticHint: "soo-uh-SY-dul eye-dee-AY-shun ob-zer-VAY-shun",
+        howTo: "Step 3 Harm Safety: Implement 1-to-1 direct observation and remove hazardous items.",
+        options: [
+          { text: "Assess active suicidal ideation with plan and initiate one-to-one direct observation safety status.", isCorrect: true },
+          { text: "Document patient expressions of emotional distress and notify attending psychiatrist immediately.", isCorrect: true },
+          { text: "Tell patient their feelings do not matter and dismiss their concerns.", isCorrect: false, reason: "Unethical non-therapeutic abuse trap." },
+          { text: "Provide patient with dangerous sharp objects and leave unattended.", isCorrect: false, reason: "Fatal safety negligence trap." }
+        ]
+      },
+      {
+        id: 15,
+        moduleGroup: "15",
+        moduleTitle: "Module 15: Oncology Care",
+        visual: "Outpatient infusion suite. Roundtable with Oncology Patient, Oncology Nurse, Pharmacist, and Oncologist.",
+        s1: { speaker: "Oncology Patient", text: "It feels a little cold going in, but I'll tell you right away if it starts burning or stinging." },
+        s2: { speaker: "Oncology Nurse", text: "Very good. Keep a close eye on the IV insertion site for any discomfort." },
+        s3: { speaker: "Pharmacist", text: "Double-checked vesicant chemotherapy calculations before infusion." },
+        s4: { speaker: "Oncologist", text: "Ensure continuous monitoring for any signs of extravasation." },
+        targetPhrase: "Vesicant extravasation",
+        puzzleWords: ["Vesicant", "extravasation"],
+        phoneticHint: "VES-i-kunt eks-trav-uh-ZAY-shun",
+        howTo: "Step 3 Harm Safety: Stop infusion immediately upon patient report of burning or swelling.",
+        options: [
+          { text: "Monitor venous access patency continuously and instruct patient to report immediate burning or pain.", isCorrect: true },
+          { text: "Prepare extravasation kit and ensure dual-check verification of vesicant chemotherapy order.", isCorrect: true },
+          { text: "Increase infusion pump pressure when patient reports severe localized burning.", isCorrect: false, reason: "Causes severe tissue necrosis trap." },
+          { text: "Ignore patient complaints and leave infusion room for hours.", isCorrect: false, reason: "Oncology safety abandonment trap." }
+        ]
+      },
+      {
+        id: 16,
+        moduleGroup: "16",
+        moduleTitle: "Module 16: Emergency Triage",
+        visual: "ER Trauma Bay. Roundtable with Paramedic, Trauma Team Leader, ER Nurse, and Surgeon.",
+        s1: { speaker: "Paramedic", text: "Trauma handover: 35-year-old car crash victim, GCS 10, BP 80 over 50, right leg deformity." },
+        s2: { speaker: "Trauma Team Leader", text: "Let's initiate our primary survey and get two large-bore IVs started." },
+        s3: { speaker: "ER Nurse", text: "IV lines secured and blood warmer is running." },
+        s4: { speaker: "Surgeon", text: "Activate the Massive Transfusion Protocol immediately for hemorrhagic shock." },
+        targetPhrase: "Massive transfusion protocol",
+        puzzleWords: ["Massive", "transfusion", "protocol"],
+        phoneticHint: "MAS-iv tranz-FYOO-zhun PRO-tuh-kawl",
+        howTo: "Step 2 Mechanism: Perform primary survey (ABCDE), establish large-bore IV access, and prepare MTP.",
+        options: [
+          { text: "Execute primary trauma survey (Airway, Breathing, Circulation) and establish two large-bore IV lines.", isCorrect: true },
+          { text: "Activate Massive Transfusion Protocol (MTP) for severe arterial hypotension and hemorrhagic shock.", isCorrect: true },
+          { text: "Send trauma patient to waiting room for routine registration paperwork.", isCorrect: false, reason: "Fatal triage delay trap." },
+          { text: "Administer placebo saline and withhold oxygen.", isCorrect: false, reason: "Substandard emergency care trap." }
+        ]
+      },
+      {
+        id: 17,
+        moduleGroup: "17",
+        moduleTitle: "Module 17: Community Health",
+        visual: "Community health clinic. Roundtable with Anxious Parent, Public Health Nurse, Clinic Director, and Epidemiologist.",
+        s1: { speaker: "Anxious Parent", text: "Will she get a fever after these booster shots, and why is public health tracing contacts from my workplace?" },
+        s2: { speaker: "Public Health Nurse", text: "Mild pyrexia is normal, and contact tracing helps contain community spread." },
+        s3: { speaker: "Clinic Director", text: "Provide paracetamol dosage instructions and immunization counseling." },
+        s4: { speaker: "Epidemiologist", text: "Document all contact tracing protocols thoroughly." },
+        targetPhrase: "Epidemiological contact tracing",
+        puzzleWords: ["Epidemiological", "contact", "tracing"],
+        phoneticHint: "ep-i-dee-mee-uh-LOJ-i-kul KON-takt TRAY-sing",
+        howTo: "Step 4 Completion: Explain post-vaccine pyrexia care and document communicable disease tracing.",
+        options: [
+          { text: "Counsel parent regarding expected mild post-vaccination pyrexia and paracetamol dosage instructions.", isCorrect: true },
+          { text: "Explain epidemiological contact tracing protocols implemented for communicable disease containment.", isCorrect: true },
+          { text: "Inform parent that vaccines cause permanent toxic illness.", isCorrect: false, reason: "Medical misinformation violation trap." },
+          { text: "Discard vaccine records and terminate community health reporting.", isCorrect: false, reason: "Public health compliance breach trap." }
+        ]
+      },
+      {
+        id: 18,
+        moduleGroup: "18",
+        moduleTitle: "Module 18: Home Healthcare Management",
+        visual: "Home living room. Roundtable with Family Caregiver, Home Health Nurse, Physical Therapist, and Case Manager.",
+        s1: { speaker: "Family Caregiver", text: "My lower back feels less tender today, but should we keep propping those pillows behind his back?" },
+        s2: { speaker: "Home Health Nurse", text: "Yes, maintaining the 2-hour lateral turning schedule is essential for healing." },
+        s3: { speaker: "Physical Therapist", text: "Ensure proper alignment during repositioning to prevent shearing." },
+        s4: { speaker: "Case Manager", text: "We will document wound healing progress and ongoing support needs." },
+        targetPhrase: "Lateral repositioning schedule",
+        puzzleWords: ["Lateral", "repositioning", "schedule"],
+        phoneticHint: "LAT-ur-ul ree-zuh-ZISH-un-ing SKED-yool",
+        howTo: "Step 3 Harm Safety: Reinforce 2-hour lateral turning schedule to prevent pressure injury progression.",
+        options: [
+          { text: "Reinforce caregiver education on 2-hour lateral repositioning schedule to relieve sacral pressure.", isCorrect: true },
+          { text: "Document wound healing progress (granulation tissue) and evaluate ongoing home support needs.", isCorrect: true },
+          { text: "Instruct caregiver to leave patient in fixed position without turning for weeks.", isCorrect: false, reason: "Causes severe pressure necrosis trap." },
+          { text: "Discontinue all home dressing changes permanently.", isCorrect: false, reason: "Unsafe home nursing abandonment trap." }
+        ]
+      },
+      {
+        id: 19,
+        moduleGroup: "19",
+        moduleTitle: "Module 19: Geriatric Nursing & Cognitive Care",
+        visual: "Long-term care facility. Roundtable with Elderly Resident, Geriatric Nurse, Activity Director, and Facility Physician.",
+        s1: { speaker: "Elderly Resident", text: "Oh dear, I'm going to be late for the bus to work! Wait, am I all done? A hot cup of tea sounds so nice." },
+        s2: { speaker: "Geriatric Nurse", text: "You are retired now, Mary. Let's sit together and enjoy some warm tea." },
+        s3: { speaker: "Activity Director", text: "Validate her feelings with calm reality orientation at eye level." },
+        s4: { speaker: "Facility Physician", text: "Ensure fall prevention measures like motion alarms remain active." },
+        targetPhrase: "Sundowning agitation",
+        puzzleWords: ["Sundowning", "agitation"],
+        phoneticHint: "sun-DOWN-ing aj-i-TAY-shun",
+        howTo: "Step 2 Mechanism: Provide reality orientation at eye level, offer warm tea, and ensure bed alarm is active.",
+        options: [
+          { text: "Provide calm reality orientation at eye level, validate feelings, and offer warm tea to redirect sundowning agitation.", isCorrect: true },
+          { text: "Verify fall prevention measures: ensure non-skid socks are fitted and bed motion alarm is active.", isCorrect: true },
+          { text: "Argue aggressively with resident and lock them in a dark room.", isCorrect: false, reason: "Elder abuse and unethical restraint trap." },
+          { text: "Send elderly resident outside into traffic unattended.", isCorrect: false, reason: "Fatal safety negligence trap." }
+        ]
+      },
+      {
+        id: 20,
+        moduleGroup: "20",
+        moduleTitle: "Module 20: Palliative & End-of-Life Care",
+        visual: "Hospice private room. Roundtable with Grieving Family Member, Hospice Nurse, Palliative Doctor, and Social Worker.",
+        s1: { speaker: "Grieving Family Member", text: "Is he suffering? Why is his breathing speeding up and slowing down in that strange pattern?" },
+        s2: { speaker: "Hospice Nurse", text: "That is called Cheyne-Stokes breathing, and he is receiving continuous comfort medication." },
+        s3: { speaker: "Palliative Doctor", text: "Confirm continuous subcutaneous morphine administration for a pain-free state." },
+        s4: { speaker: "Social Worker", text: "Provide compassionate emotional support and reassurance to the family." },
+        targetPhrase: "Cheyne-Stokes respirations",
+        puzzleWords: ["Cheyne", "Stokes", "respirations"],
+        phoneticHint: "chayn stohks res-puh-RAY-shunz",
+        howTo: "Step 3 Harm Safety: Reassure family regarding Cheyne-Stokes respirations and maintain comfort meds.",
+        options: [
+          { text: "Reassure family that Cheyne-Stokes respiration is a natural physiological process at end of life.", isCorrect: true },
+          { text: "Confirm continuous subcutaneous administration of comfort medications (morphine) to ensure pain-free state.", isCorrect: true },
+          { text: "Initiate emergency invasive mechanical intubation and CPR against hospice wishes.", isCorrect: false, reason: "Violates palliative comfort care goals trap." },
+          { text: "Tell family member their loved one is faking illness.", isCorrect: false, reason: "Cruel and unethical non-professional trap." }
+        ]
+      }
+    ];
+
+    // --- GAME STATE ---
+    let currentScore = 0;
+    let currentStreak = 0;
+    let currentScenarioIndex = 0;
+    let filteredScenarios = [...pronunciationWordScenarios];
+    let selectedIndices = new Set();
+    let puzzleSolved = true; // Default true so user is never locked out
+
+    // --- DOM ELEMENTS ---
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const streakDisplay = document.getElementById('streakDisplay');
+    const caseProgressDisplay = document.getElementById('caseProgressDisplay');
+    const badgeCategory = document.getElementById('badgeCategory');
+    const visualDescription = document.getElementById('visualDescription');
+    const speaker1Title = document.getElementById('speaker1Title');
+    const speaker1Text = document.getElementById('speaker1Text');
+    const speaker2Title = document.getElementById('speaker2Title');
+    const speaker2Text = document.getElementById('speaker2Text');
+    const speaker3Title = document.getElementById('speaker3Title');
+    const speaker3Text = document.getElementById('speaker3Text');
+    const speaker4Title = document.getElementById('speaker4Title');
+    const speaker4Text = document.getElementById('speaker4Text');
+    const speakDialogueBtn = document.getElementById('speakDialogueBtn');
+    const targetPronunciationPhrase = document.getElementById('targetPronunciationPhrase');
+    const listenTargetBtn = document.getElementById('listenTargetBtn');
+    const recordMicBtn = document.getElementById('recordMicBtn');
+    const revealHintBtn = document.getElementById('revealHintBtn');
+    const speechStatusBanner = document.getElementById('speechStatusBanner');
+    const wordPuzzleContainer = document.getElementById('wordPuzzleContainer');
+    const puzzleFeedback = document.getElementById('puzzleFeedback');
+    const proceduralStepText = document.getElementById('proceduralStepText');
+    const speakHowToBtn = document.getElementById('speakHowToBtn');
+    const challengeInstruction = document.getElementById('challengeInstruction');
+    const speakInstructionBtn = document.getElementById('speakInstructionBtn');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const submitBtn = document.getElementById('submitBtn');
+    const feedbackBanner = document.getElementById('feedbackBanner');
+    const feedbackText = document.getElementById('feedbackText');
+    const feedbackSubtext = document.getElementById('feedbackSubtext');
+    const nextScenarioBtn = document.getElementById('nextScenarioBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const soundToggle = document.getElementById('soundToggle');
+    const moduleSelect = document.getElementById('moduleSelect');
+    const mainContainer = document.getElementById('mainContainer');
+
+    // --- INITIALIZATION ---
+    function initGame() {
+      currentScore = 0;
+      currentStreak = 0;
+      currentScenarioIndex = 0;
+      filterScenarios();
+      updateHeaderStats();
+      loadScenario(currentScenarioIndex);
+    }
+
+    function filterScenarios() {
+      const val = moduleSelect.value;
+      if (val === 'all') {
+        filteredScenarios = [...pronunciationWordScenarios];
+      } else {
+        filteredScenarios = pronunciationWordScenarios.filter(s => s.moduleGroup === val);
+      }
+      currentScenarioIndex = 0;
+    }
+
+    function updateHeaderStats() {
+      scoreDisplay.textContent = currentScore;
+      streakDisplay.textContent = `${currentStreak}🔥`;
+      caseProgressDisplay.textContent = `${currentScenarioIndex + 1} / ${filteredScenarios.length}`;
+    }
+
+    function loadScenario(index) {
+      if (index >= filteredScenarios.length) {
+        showFinalVictoryScreen();
+        return;
+      }
+
+      const sc = filteredScenarios[index];
+      selectedIndices.clear();
+      puzzleSolved = true;
+      feedbackBanner.classList.add('hidden');
+      submitBtn.disabled = false;
+      puzzleFeedback.textContent = "";
+
+      badgeCategory.textContent = sc.moduleTitle;
+      visualDescription.textContent = `📷 Setting: ${sc.visual}`;
+      
+      speaker1Title.textContent = sc.s1.speaker;
+      speaker1Text.textContent = `"${sc.s1.text}"`;
+      speaker2Title.textContent = sc.s2.speaker;
+      speaker2Text.textContent = `"${sc.s2.text}"`;
+      speaker3Title.textContent = sc.s3.speaker;
+      speaker3Text.textContent = `"${sc.s3.text}"`;
+      speaker4Title.textContent = sc.s4.speaker;
+      speaker4Text.textContent = `"${sc.s4.text}"`;
+
+      targetPronunciationPhrase.textContent = `"${sc.targetPhrase}"`;
+      proceduralStepText.textContent = sc.howTo;
+
+      // Build interactive word scramble puzzle
+      buildWordPuzzle(sc.puzzleWords);
+
+      // Auto-speak roundtable exchange with Male Voice
+      const fullExchange = `${sc.s1.speaker} states: ${sc.s1.text}. ${sc.s2.speaker} adds: ${sc.s2.text}. ${sc.s3.speaker} orders: ${sc.s3.text}. ${sc.s4.speaker} confirms: ${sc.s4.text}`;
+      tts.speak(fullExchange, 'male');
+
+      // Randomize Options
+      const randomizedOptions = shuffleArray(sc.options);
+
+      // Render Options (Female Voice)
+      optionsContainer.innerHTML = '';
+      randomizedOptions.forEach((opt, optIdx) => {
+        const card = document.createElement('div');
+        card.className = `option-card bg-slate-900/90 border-2 border-slate-700 hover:border-amber-400/80 p-4 rounded-xl cursor-pointer transition flex items-center justify-between gap-3 text-slate-200 select-none group`;
+        card.dataset.index = optIdx;
+
+        card.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="checkbox-box w-6 h-6 rounded-md border-2 border-slate-500 flex items-center justify-center flex-shrink-0 transition">
+              <span class="check-mark hidden text-amber-400 font-bold text-xs">✓</span>
+            </div>
+            <span class="font-semibold text-sm md:text-base group-hover:text-amber-200 transition">${opt.text}</span>
+          </div>
+          <button class="tts-opt-btn bg-slate-800 hover:bg-slate-700 text-teal-300 p-2 rounded-lg border border-slate-600 transition flex-shrink-0 text-xs flex items-center gap-1" title="Listen with Female Voice">
+            👩🔊 <span class="hidden md:inline">Listen</span>
+          </button>
+        `;
+
+        card.addEventListener('click', (e) => {
+          if (!e.target.closest('.tts-opt-btn')) {
+            toggleOptionSelect(optIdx, card);
+            tts.speak(opt.text, 'female');
+          }
+        });
+
+        card.dataset.isCorrect = opt.isCorrect ? "true" : "false";
+        card.dataset.reason = opt.reason || "";
+
+        const ttsBtn = card.querySelector('.tts-opt-btn');
+        ttsBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          tts.speak(opt.text, 'female');
+        });
+
+        optionsContainer.appendChild(card);
+      });
+
+      updateHeaderStats();
+    }
+
+    function buildWordPuzzle(words) {
+      wordPuzzleContainer.innerHTML = "";
+      const shuffled = shuffleArray(words);
+      let clickedOrder = [];
+
+      shuffled.forEach(w => {
+        const btn = document.createElement('button');
+        btn.className = "bg-slate-900 border border-slate-700 hover:border-teal-400 text-teal-300 text-xs font-bold px-3 py-1.5 rounded-lg transition shadow";
+        btn.textContent = w;
+        btn.addEventListener('click', () => {
+          if (btn.classList.contains('bg-teal-900')) return;
+          btn.classList.remove('bg-slate-900');
+          btn.classList.add('bg-teal-900', 'text-amber-300', 'border-amber-400');
+          clickedOrder.push(w);
+
+          if (clickedOrder.length === words.length) {
+            if (clickedOrder.join(" ") === words.join(" ")) {
+              puzzleFeedback.textContent = "✅ Word puzzle solved correctly!";
+              soundFX.playCorrect();
+            } else {
+              puzzleFeedback.textContent = "💡 Order noted. Keep going!";
+            }
+          }
+        });
+        wordPuzzleContainer.appendChild(btn);
+      });
+    }
+
+    function toggleOptionSelect(index, cardElement) {
+      const checkbox = cardElement.querySelector('.checkbox-box');
+      const checkMark = cardElement.querySelector('.check-mark');
+
+      if (selectedIndices.has(index)) {
+        selectedIndices.delete(index);
+        cardElement.classList.remove('border-amber-400', 'bg-amber-950/40');
+        cardElement.classList.add('border-slate-700');
+        checkbox.classList.remove('border-amber-400', 'bg-amber-900');
+        checkMark.classList.add('hidden');
+      } else {
+        selectedIndices.add(index);
+        cardElement.classList.remove('border-slate-700');
+        cardElement.classList.add('border-amber-400', 'bg-amber-950/40');
+        checkbox.classList.add('border-amber-400', 'bg-amber-900');
+        checkMark.classList.remove('hidden');
+      }
+    }
+
+    // --- MIC PRACTICE & HINTS ---
+    listenTargetBtn.addEventListener('click', () => {
+      const sc = filteredScenarios[currentScenarioIndex];
+      tts.speak(sc.targetPhrase, 'female', 0.80);
+    });
+
+    revealHintBtn.addEventListener('click', () => {
+      const sc = filteredScenarios[currentScenarioIndex];
+      alert(`Phonetic Pronunciation Guide & Stress:\n"${sc.phoneticHint}"`);
+      tts.speak(sc.phoneticHint, 'female', 0.75);
+    });
+
+    recordMicBtn.addEventListener('click', () => {
+      const sc = filteredScenarios[currentScenarioIndex];
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
+      if (!SpeechRecognition) {
+        speechStatusBanner.classList.remove('hidden');
+        speechStatusBanner.textContent = `🎙️ Pronunciation practice simulated: "${sc.targetPhrase}" verified!`;
+        tts.speak("Pronunciation verified successfully!", 'female');
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+
+      speechStatusBanner.classList.remove('hidden');
+      speechStatusBanner.textContent = "🎙️ Listening... Speak the target phrase now!";
+      recordMicBtn.classList.add('recording-pulse');
+
+      recognition.start();
+
+      recognition.onresult = (event) => {
+        const speechResult = event.results[0][0].transcript.toLowerCase();
+        speechStatusBanner.textContent = `🗣️ You said: "${speechResult}"`;
+        recordMicBtn.classList.remove('recording-pulse');
+        puzzleFeedback.textContent = `✅ Voice match verified ("${speechResult}")!`;
+        tts.speak("Pronunciation verified!", 'female');
+      };
+
+      recognition.onerror = () => {
+        recordMicBtn.classList.remove('recording-pulse');
+        speechStatusBanner.textContent = "✅ Voice practice completed! Select your formal options below.";
+      };
+
+      recognition.onspeechend = () => {
+        recognition.stop();
+        recordMicBtn.classList.remove('recording-pulse');
+      };
+    });
+
+    // --- EVALUATION & SCORING LOGIC ---
+    submitBtn.addEventListener('click', () => {
+      const cards = optionsContainer.querySelectorAll('.option-card');
+      let isPerfect = true;
+      let mistakes = [];
+
+      cards.forEach((card, idx) => {
+        const wasSelected = selectedIndices.has(idx);
+        const isCorrect = card.dataset.isCorrect === "true";
+        const reason = card.dataset.reason;
+        const text = card.querySelector('span.font-semibold').textContent;
+
+        if (isCorrect && !wasSelected) {
+          isPerfect = false;
+          mistakes.push(`Missed valid formal response: "${text}"`);
+        } else if (!isCorrect && wasSelected) {
+          isPerfect = false;
+          mistakes.push(`Selected distractor trap: "${text}" (${reason})`);
+        }
+      });
+
+      submitBtn.disabled = true;
+      feedbackBanner.classList.remove('hidden');
+
+      if (isPerfect && selectedIndices.size > 0) {
+        currentScore += 100;
+        currentStreak++;
+        soundFX.playCorrect();
+        tts.speak("Correct! Perfect clinical and pronunciation match.", 'female');
+
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 80, spread: 70, origin: { y: 0.7 } });
+        }
+
+        feedbackBanner.className = "p-4 rounded-xl border border-emerald-500/80 bg-emerald-950/90 text-emerald-200 text-center shadow-xl";
+        feedbackText.innerHTML = `🎉 PERFECT CLINICAL & WORD MATCH! (+100 SCORE)`;
+        feedbackSubtext.textContent = "You successfully completed the scenario and selected correct formal documentation!";
+
+      } else {
+        currentScore = Math.max(0, currentScore - 50); // Gentle penalty
+        currentStreak = 0;
+        soundFX.playIncorrect();
+        tts.speak("Incorrect evaluation. Review the clinical options.", 'female');
+
+        mainContainer.classList.add('bam-effect');
+        setTimeout(() => mainContainer.classList.remove('bam-effect'), 500);
+
+        feedbackBanner.className = "p-4 rounded-xl border border-rose-500/80 bg-rose-950/90 text-rose-200 text-center shadow-xl";
+        feedbackText.innerHTML = `💥 INCORRECT EVALUATION (-50 SCORE)`;
+        feedbackSubtext.innerHTML = mistakes.length > 0 ? mistakes.join('<br>') : "Select the correct formal clinical responses!";
+      }
+
+      updateHeaderStats();
+    });
+
+    nextScenarioBtn.addEventListener('click', () => {
+      currentScenarioIndex++;
+      loadScenario(currentScenarioIndex);
+    });
+
+    speakDialogueBtn.addEventListener('click', () => {
+      const sc = filteredScenarios[currentScenarioIndex];
+      const fullExchange = `${sc.s1.speaker} states: ${sc.s1.text}. ${sc.s2.speaker} adds: ${sc.s2.text}. ${sc.s3.speaker} orders: ${sc.s3.text}. ${sc.s4.speaker} confirms: ${sc.s4.text}`;
+      tts.speak(fullExchange, 'male');
+    });
+
+    speakHowToBtn.addEventListener('click', () => {
+      const sc = filteredScenarios[currentScenarioIndex];
+      tts.speak(sc.howTo, 'female');
+    });
+
+    speakInstructionBtn.addEventListener('click', () => {
+      const sc = filteredScenarios[currentScenarioIndex];
+      tts.speak(sc.instruction, 'female');
+    });
+
+    resetBtn.addEventListener('click', () => initGame());
+    moduleSelect.addEventListener('change', () => initGame());
+    soundToggle.addEventListener('click', () => {
+      soundFX.enabled = !soundFX.enabled;
+      soundToggle.textContent = soundFX.enabled ? "🔊 Audio FX: ON" : "🔇 Audio FX: OFF";
+    });
+
+    function showFinalVictoryScreen() {
+      optionsContainer.innerHTML = '';
+      speaker1Text.textContent = "🏆 CLINICAL PRONUNCIATION & WORD GAME COMPLETED!";
+      speaker2Text.textContent = "20-Module Phonetic & Interprofessional Mastery Achieved";
+      speaker3Text.textContent = "All Clinical Roundtable Scenarios Successfully Mastered";
+      speaker4Text.textContent = "Curriculum Mastered Successfully";
+      visualDescription.textContent = "Advanced Pronunciation Training Completed";
+      targetPronunciationPhrase.textContent = "Mastery Achieved across all modules";
+
+      tts.speak("Congratulations! You have completed the Clinical Pronunciation and Word Game Challenge.", 'female');
+
+      feedbackBanner.classList.remove('hidden');
+      feedbackBanner.className = "p-6 rounded-2xl border border-amber-500/80 bg-slate-900/95 text-amber-300 text-center shadow-2xl space-y-3";
+      feedbackText.innerHTML = `FINAL CHALLENGE SCORE: ${currentScore} POINTS`;
+      feedbackSubtext.innerHTML = `
+        <p class="text-sm text-slate-300">You have successfully mastered spoken clinical pronunciation, register translation, and roundtable procedures across all 20 scenarios!</p>
+        <p class="text-xs text-amber-400 font-bold">Curriculum & Pedagogical Framework © Giyono Asfarrasyid</p>
+      `;
+      nextScenarioBtn.style.display = 'none';
+    }
+
+    initGame();
+  </script>
+</body>
+</html>
