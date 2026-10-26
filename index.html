@@ -175,6 +175,16 @@
         🎙️ Listening... Speak the target phrase clearly into your mic!
       </div>
 
+      <!-- PROCEDURAL STEP / MECHANISM CARD -->
+      <div class="bg-teal-950/50 border border-teal-700/60 p-3 rounded-xl flex items-center justify-between gap-3">
+        <p id="proceduralStepText" class="text-xs md:text-sm font-semibold text-teal-200">
+          "Procedural step..."
+        </p>
+        <button id="speakHowToBtn" class="bg-teal-500/20 hover:bg-teal-500/40 text-teal-300 border border-teal-500/50 p-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center gap-1 flex-shrink-0">
+          👩🔊 Read
+        </button>
+      </div>
+
       <!-- CHALLENGE INSTRUCTION -->
       <div class="bg-teal-950/40 border border-teal-700/50 p-3 rounded-xl flex items-center justify-between">
         <p id="challengeInstruction" class="text-sm font-semibold text-teal-200">
@@ -725,7 +735,7 @@
     let currentScenarioIndex = 0;
     let filteredScenarios = [...pronunciationWordScenarios];
     let selectedIndices = new Set();
-    let puzzleSolved = true; // Default true so user is never locked out
+    let puzzleSolved = true;
 
     // --- DOM ELEMENTS ---
     const scoreDisplay = document.getElementById('scoreDisplay');
@@ -1007,7 +1017,7 @@
         feedbackSubtext.textContent = "You successfully completed the scenario and selected correct formal documentation!";
 
       } else {
-        currentScore = Math.max(0, currentScore - 50); // Gentle penalty
+        currentScore = Math.max(0, currentScore - 50);
         currentStreak = 0;
         soundFX.playIncorrect();
         tts.speak("Incorrect evaluation. Review the clinical options.", 'female');
@@ -1041,7 +1051,7 @@
 
     speakInstructionBtn.addEventListener('click', () => {
       const sc = filteredScenarios[currentScenarioIndex];
-      tts.speak(sc.instruction, 'female');
+      tts.speak(sc.howTo, 'female');
     });
 
     resetBtn.addEventListener('click', () => initGame());
